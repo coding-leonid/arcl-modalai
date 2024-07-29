@@ -1,0 +1,21 @@
+<launch>
+  <!-- Include the sample.launch file from vrpn_client_ros package -->
+  <!-- <remap from="vrpn_client_node/sjcmodalai/pose" to="/mavros/vision_pose/pose" /> -->
+  <include file="$(find vrpn_client_ros)/launch/sample.launch">  
+    <!-- Set the parameter server to 192.168.50.11 -->
+    <arg name="server" value="192.168.50.11" />
+  </include>
+
+  <node name="position_relay" pkg="topic_tools" type="relay" args="/vrpn_client_node/sjcmodalai/pose /mavros/vision_pose/pose"/>
+
+  <!-- <node pkg="tf" type="static_transform_publisher" name="tf_baseLink_externalPoseChildFrame"
+        args="0 0 0 0 0 0 base_link sjcmodalai 1000"/>
+
+  <node pkg="tf" type="static_transform_publisher" name="tf_baseLink_externalPoseParentFrame"
+        args="0 0 0 0 0 0 odom world 1000"/> -->
+
+  <node pkg="tf" type="static_transform_publisher" name="tf_worldToMap" args="0 0 0 0 0 0 world map 10"/>
+  <node pkg="tf" type="static_transform_publisher" name="tf_mapToOdom" args="0 0 0 0 0 0 map odom 10"/>
+  <node pkg="tf" type="static_transform_publisher" name="tf_odomToBaselink" args="0 0 0 0 0 0 odom base_link 10"/>
+
+</launch>
