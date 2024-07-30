@@ -19,4 +19,3 @@ export ROS_IP=192.168.50.16
 export ROS_MASTER_URI=http://${ROS_MASTER_IP}:11311/
 # mavros needs to know what PX4's system id is
 export PX4_SYS_ID=1
-

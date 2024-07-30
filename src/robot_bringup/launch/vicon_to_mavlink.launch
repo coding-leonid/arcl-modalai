@@ -1,0 +1,26 @@
+<launch>
+  <!-- Start Vicon bridge -->
+   <arg name="datastream_hostport" default="192.168.50.26:801"/>
+    <arg name="vicon_world_frame" default="world"/>
+
+    <node pkg="vicon_bridge" type="vicon_bridge" name="vicon" output="screen" >
+        <param name="stream_mode" value="ServerPush"/>
+        <param name="datastream_hostport" value="$(arg datastream_hostport)"/>
+        <param name="tf_ref_frame_id" value="$(arg vicon_world_frame)"/>
+    </node>
+
+  <!-- <node name="position_relay" pkg="topic_tools" type="relay" args="/vicon/modalai/modalai /mavros/vision_pose/pose"/> -->
+
+  <node name="position_relay" pkg="robot_bringup" type="relay.py"/>
+
+  <!-- <node pkg="tf" type="static_transform_publisher" name="tf_baseLink_externalPoseChildFrame"
+        args="0 0 0 0 0 0 base_link sjcmodalai 1000"/>
+
+  <node pkg="tf" type="static_transform_publisher" name="tf_baseLink_externalPoseParentFrame"
+        args="0 0 0 0 0 0 odom world 1000"/> -->
+
+  <node pkg="tf" type="static_transform_publisher" name="tf_worldToMap" args="0 0 0 0 0 0 world map 10"/>
+  <node pkg="tf" type="static_transform_publisher" name="tf_mapToOdom" args="0 0 0 0 0 0 map odom 10"/>
+  <node pkg="tf" type="static_transform_publisher" name="tf_odomToBaselink" args="0 0 0 0 0 0 odom base_link 10"/>
+
+</launch>
