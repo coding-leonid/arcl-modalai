@@ -1,0 +1,19 @@
+<?xml version="1.0"?>
+<launch>
+    <!-- Vicon bridge -->
+    <include file="$(find vicon_bridge)/launch/vicon.launch" >
+        <param name="datastream_hostport" value="$(env VICON_IP)" />
+        <param name="vicon_world_frame" value="world"/>
+    </include>
+
+    <!-- Relay node that converts TransformStamped to PoseStamped -->
+    <node name="position_relay" pkg="robot_bringup" type="relay.py"/>
+
+    <!-- What is the point of this? Why so many frames? -->
+    <node pkg="tf" type="static_transform_publisher" name="tf_worldToMap" args="0 0 0 0 0 0 world map 10"/>
+    <node pkg="tf" type="static_transform_publisher" name="tf_mapToOdom" args="0 0 0 0 0 0 map odom 10"/>
+    <node pkg="tf" type="static_transform_publisher" name="tf_odomToBaselink" args="0 0 0 0 0 0 odom base_link 10"/>
+
+    <!-- Mavros with default arguments -->
+    <include file="$(find vrpn-mavlink-bridge)/launch/mavros.launch" />
+</launch>
