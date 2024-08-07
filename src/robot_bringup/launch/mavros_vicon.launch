@@ -1,19 +1,33 @@
 <?xml version="1.0"?>
 <launch>
-    <!-- Vicon bridge -->
-    <include file="$(find vicon_bridge)/launch/vicon.launch" >
-        <arg name="datastream_hostport" value="$(env VICON_IP)" />
-        <arg name="vicon_world_frame" value="world"/>
-    </include>
+    <arg name="mocap_ip"    default="131.215.96.158:801"/>
+    <arg name="use_vicon"   default="true"/>
 
-    <!-- Relay node that converts TransformStamped to PoseStamped -->
-    <node name="position_relay" pkg="robot_bringup" type="relay.py"/>
+    <group if="$(arg use_vicon)">
+        <!-- Vicon bridge -->
+        <!-- <include file="$(find vicon_bridge)/launch/vicon.launch" >
+            <arg name="datastream_hostport" value="$(arg mocap_ip)" />
+            <arg name="vicon_world_frame" value="world"/>
+        </include> -->
 
-    <!-- What is the point of this? Why so many frames? -->
+        <!-- Relay node that converts TransformStamped to PoseStamped -->
+        <node name="position_relay" pkg="robot_bringup" type="relay.py"/>
+    </group>
+    <group unless="$(arg use_vicon)">
+        <!-- VRPN bridge -->
+        <include file="$(find vrpn_client_ros)/launch/sample.launch">  
+            <arg name="server" value="$(arg mocap_ip)" />
+        </include>
+        
+        <!-- Relay node that directly republishes topic -->
+        <node name="position_relay" pkg="topic_tools" type="relay" args="/vrpn_client_node/sjcmodalai/pose /mavros/vision_pose/pose"/>
+    </group>
+
+    <!-- Frame transformations -->
     <node pkg="tf" type="static_transform_publisher" name="tf_worldToMap" args="0 0 0 0 0 0 world map 10"/>
-    <!-- <node pkg="tf" type="static_transform_publisher" name="tf_mapToOdom" args="0 0 0 0 0 0 map odom 10"/> -->
-    <!-- <node pkg="tf" type="static_transform_publisher" name="tf_odomToBaselink" args="0 0 0 0 0 0 odom base_link 10"/> -->
+    <node pkg="tf" type="static_transform_publisher" name="tf_viconToBaseLink" args="0 0 0 0 0 0 vicon/modalai/modalai base_link 1000"/>
+    <node pkg="tf" type="static_transform_publisher" name="tf_baseLinkToOdom" args="0 0 0 0 0 0 base_link odom 1000"/>
 
     <!-- Mavros with default arguments -->
-    <include file="$(find vrpn-mavlink-bridge)/launch/mavros.launch" />
+    <include file="$(find robot_bringup)/launch/mavros.launch" />
 </launch>
